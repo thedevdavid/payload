@@ -5,9 +5,9 @@ import type { NonNever } from 'ts-essentials'
 
 import { spawn } from 'child_process'
 import crypto from 'crypto'
+import { createRequire } from 'module'
 import { fileURLToPath } from 'node:url'
 import path from 'path'
-import WebSocket from 'ws'
 
 import type { AuthArgs } from './auth/operations/auth.js'
 import type { Result as ForgotPasswordResult } from './auth/operations/forgotPassword.js'
@@ -786,6 +786,8 @@ export const reload = async (
   }
 }
 
+const require = createRequire(import.meta.url)
+
 export const getPayload = async (
   options: Pick<InitOptions, 'config' | 'importMap'>,
 ): Promise<Payload> => {
@@ -802,7 +804,7 @@ export const getPayload = async (
       // will reach `if (cached.reload instanceof Promise) {` which then waits for the first reload to finish.
       cached.reload = new Promise((res) => (resolve = res))
       const config = await options.config
-      await reload(config, cached.payload)
+      await reload(config, cached.payload, process.env.PAYLOAD_NEXT_INTEGRATION !== 'true')
 
       resolve()
     }
@@ -830,11 +832,14 @@ export const getPayload = async (
       !cached.ws &&
       process.env.NODE_ENV !== 'production' &&
       process.env.NODE_ENV !== 'test' &&
-      process.env.DISABLE_PAYLOAD_HMR !== 'true'
+      process.env.DISABLE_PAYLOAD_HMR !== 'true' &&
+      process.env.PAYLOAD_NEXT_INTEGRATION === 'true'
     ) {
       try {
         const port = process.env.PORT || '3000'
-        cached.ws = new WebSocket(
+        const WebSocketRequire = require('ws') as typeof WebSocket
+
+        cached.ws = new WebSocketRequire(
           `ws://localhost:${port}${process.env.NEXT_BASE_PATH ?? ''}/_next/webpack-hmr`,
         )
 
