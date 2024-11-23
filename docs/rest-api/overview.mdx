@@ -801,7 +801,88 @@ const result = await sdk.login({
     password: '12345',
   },
 })
+
+// Create operation
+const result = await sdk.create({
+  collection: 'posts',
+  data: { text: 'text' },
+})
+
+// Create operation with a file
+// `file` can be either a Blob | File object or a string URL
+const result = await sdk.create({ collection: 'media', file, data: {} })
+
+// Count operation
+const result = await sdk.count({ collection: 'posts', where: { id: { equals: post.id } } })
+
+// Update (by ID) operation
+const result = await sdk.update({
+  collection: 'posts',
+  id: post.id,
+  data: {
+    text: 'updated-text',
+  },
+})
+
+// Update (bulk) operation
+const result = await sdk.update({
+  collection: 'posts',
+  where: {
+    id: {
+      equals: post.id,
+    },
+  },
+  data: { text: 'updated-text-bulk' },
+})
+
+// Delete (by ID) operation
+const result = await sdk.delete({ id: post.id, collection: 'posts' })
+
+// Delete (bulk) operation
+const result = await sdk.delete({ where: { id: { equals: post.id } }, collection: 'posts' })
+
+// Find Global operation
+const result = await sdk.findGlobal({ slug: 'global' })
+
+// Update Global operation
+const result = await sdk.updateGlobal({ slug: 'global', data: { text: 'some-updated-global' } })
+
+// Auth Login operation
+const result = await sdk.login({
+  collection: 'users',
+  data: { email: 'dev@payloadcms.com', password: '123456' },
+})
+
+// Auth Me operation
+const result = await sdk.me(
+  { collection: 'users' },
+  {
+    headers: {
+      Authorization: `JWT  ${user.token}`,
+    },
+  },
+)
+
+// Auth Refresh Token operation
+const result = await sdk.refreshToken(
+  { collection: 'users' },
+  { headers: { Authorization: `JWT ${user.token}` } },
+)
+
+// Auth Forgot Password operation
+const result = await sdk.forgotPassword({
+  collection: 'users',
+  data: { email: user.email },
+})
+
+// Auth Reset Password operation
+const result = await sdk.resetPassword({
+  collection: 'users',
+  data: { password: '1234567', token: resetPasswordToken },
+})
 ```
+
+
 
 Every operation has optional 3rd parameter which is used to add additional data to the RequestInit object (like headers):
 ```ts
