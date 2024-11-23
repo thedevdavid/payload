@@ -6,6 +6,7 @@ export type OperationArgs = {
   depth?: number
   draft?: boolean
   fallbackLocale?: false | string
+  joins?: false | Record<string, unknown>
   limit?: number
   locale?: string
   page?: number
@@ -57,6 +58,10 @@ export const buildSearchParams = (args: OperationArgs): string => {
 
   if (args.populate) {
     search.populate = args.populate
+  }
+
+  if (args.joins) {
+    search.joins = args.joins
   }
 
   if (Object.keys(search).length > 0) {
